@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS", // ✅ เปลี่ยนจาก ESNext เป็น CommonJS
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "esModuleInterop": true, // ✅ เพื่อให้ใช้ import express from 'express' ได้
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}
