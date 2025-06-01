@@ -13,6 +13,9 @@ export class UserRepository {
                 name: true,
                 createdAt: true,
                 updatedAt: true
+            },
+            orderBy: {
+                id: 'asc'
             }
         });
     }
@@ -36,5 +39,87 @@ export class UserRepository {
             }
         })
         return existingUser
+    }
+
+    async findId(userId: number): Promise<IUser | null> {
+        const existingId = await this.model.findFirst({
+            where: {
+                id: userId
+            },
+            select: {
+                id: true,
+                email: true
+            }
+        })
+        return existingId
+    }
+
+    async updateUser(userId: number, user: IUser): Promise<IUser | null> {
+        const editUser = await this.model.update({
+            where: {
+                id: userId
+            },
+            data: {
+                email: user.email,
+                name: user.name,
+                updatedAt: user.updatedAt
+            }
+        })
+        return editUser
+    }
+
+    async deleteUser(userId: number): Promise<IUser> {
+        const deleteUser = await this.model.delete({
+            where: {
+                id: userId,
+            }
+        })
+
+        return deleteUser
+    }
+
+    async findAll(searchQuery: string, emailQuery: string, sortQuery: string): Promise<IUser[]> {
+        // ถ้ามี emailQuery ให้ทำการ search name หรือ ถ้าไม่มี emailQuery ให้ทำการ search email และ name
+        let whereCondition = emailQuery ? {
+            email: { contains: emailQuery, mode: "insensitive" } as Object,
+            name: {
+                contains: searchQuery,
+                mode: "insensitive"
+            } as Object
+        } : {
+            OR: [{
+                email: {
+                    contains: searchQuery,
+                    mode: "insensitive"
+                } as Object,
+            },
+            {
+                name: {
+                    contains: searchQuery,
+                    mode: "insensitive"
+                } as Object
+            }]
+        }
+
+        // ถ้ามี emailQuery ให้ทำการ search name หรือ ถ้าไม่มี emailQuery ให้ทำการ search name
+        /* let whereCondition = emailQuery ? {
+            email: { contains: emailQuery, mode: "insensitive" } as Object,
+            name: {
+                contains: searchQuery,
+                mode: "insensitive"
+            } as Object
+        } : {
+            name: {
+                contains: searchQuery,
+                mode: "insensitive"
+            } as Object
+        } */
+
+        return await this.model.findMany({
+            where: whereCondition,
+            orderBy: {
+                createdAt: sortQuery as 'asc' | 'desc'
+            }
+        })
     }
 }
