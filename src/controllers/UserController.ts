@@ -36,6 +36,7 @@ export class UserController {
     async createUser(req: Request, res: Response): Promise<void> {
         try {
             const body = req.body;
+            console.log("body", body)
             const createUser = await this.userService.createUser(body);
             const response = APIResponse.success("Create user success", createUser)
             res.status(201).json(response);
@@ -86,6 +87,25 @@ export class UserController {
                 : "Internal server error";
 
             const statusCode = (message === 'Not Founded') ? 400 : 500;
+
+            const response = APIResponse.error(message)
+
+            res.status(statusCode).json(response)
+        }
+    }
+
+    async loginUser(req: Request, res: Response): Promise<void> {
+        try {
+            const body = req.body;
+            const loginUser = await this.userService.loginUser(body);
+            const response = APIResponse.success("Login success")
+            res.status(200).json(response);
+        } catch (error: unknown) {
+            const message = (error instanceof Error && error.message === "Something is wrong email or password")
+                ? "Something is wrong email or password"
+                : "Internal server error";
+
+            const statusCode = (message === 'Something is wrong email or password') ? 403 : 500;
 
             const response = APIResponse.error(message)
 
