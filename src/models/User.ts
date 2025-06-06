@@ -1,13 +1,24 @@
 export interface IUser {
     id: number;
     email: string;
-    name?: string | null;
+    password: string;
+    fname: string;
+    lname: string;
+    role: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-export interface IUserResponse {
+export interface IUserSafe {
     id: number;
     email: string;
-    name?: string;
+    fname: string;
+    lname: string;
+    role: string;
+}
+
+export interface IUserLogin {
+    id: number;
+    email: string;
+    password: string;
 }
