@@ -12,5 +12,6 @@ router.put('/user/:id', userController.updateUser.bind(userController));
 router.delete('/user/:id', userController.deleteUser.bind(userController));
 router.post('/login', userController.loginUser.bind(userController));
 router.get('/user', userController.findAll.bind(userController));
+router.patch('/changePassword/:id', userController.changePassword.bind(userController));
 
 export default router;
