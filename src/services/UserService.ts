@@ -1,4 +1,4 @@
-import { IUser, IUserLogin, IUserSafe } from "../models/User";
+import { IUser, IUserChangePassword, IUserLogin, IUserSafe } from "../models/User";
 import { UserRepository } from "../repositories/UserRepository";
 import bcrypt from "bcrypt";
 
@@ -86,23 +86,27 @@ export class UserService {
         }
     }
 
-    // async changePassword(user: IUser): Promise<IUserLogin | null> {
-    //     try {
-    //         const existingEmail = await this.userRepository.findEmail(user)
+    // new feature
+    async changePassword(userId: number, user: IUserChangePassword): Promise<IUser | null> {
+        try {
+            const existingId = await this.userRepository.findId(userId)
 
-    //         const isValidPassword = await bcrypt.compare(user.password, existingEmail?.password!)
+            const isValidPassword = await bcrypt.compare(user.password, existingId?.password!)
 
-    //         if (!existingEmail || !isValidPassword) {
-    //             throw new Error("Something is wrong email or password")
-    //         }
+            if (existingId?.id !== Number(user.id) || !isValidPassword) {
+                throw new Error("Something is wrong email or password")
+            }
 
-    //         // const updatePassword = await this.userRepository.updatePassword(user)
+            const salt = await bcrypt.genSalt(10);
+            user.newPassword = await bcrypt.hash(user.newPassword, salt);
 
-    //         return existingEmail
-    //     } catch (error: unknown) {
-    //         throw error
-    //     }
-    // }
+            const updatePassword = await this.userRepository.updatePassword(user)
+
+            return updatePassword
+        } catch (error: unknown) {
+            throw error
+        }
+    }
 
     async findAll(searchQuery: string, emailQuery: string, sort: string): Promise<IUser[]> {
         const search = await this.userRepository.findAll(searchQuery, emailQuery, sort)

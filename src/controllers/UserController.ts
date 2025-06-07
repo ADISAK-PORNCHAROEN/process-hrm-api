@@ -113,6 +113,26 @@ export class UserController {
         }
     }
 
+    async changePassword(req: Request, res: Response): Promise<void> {
+        try {
+            const body = req.body;
+            const userId = Number(req.params.id);
+            const changePassword = await this.userService.changePassword(userId, body);
+            const response = APIResponse.success("Change password success")
+            res.status(200).json(response);
+        } catch (error: unknown) {
+            const message = (error instanceof Error && error.message === "Something is wrong email or password")
+                ? "Something is wrong email or password"
+                : "Internal server error";
+
+            const statusCode = (message === 'Something is wrong email or password') ? 403 : 500;
+
+            const response = APIResponse.error(message)
+
+            res.status(statusCode).json(response)
+        }
+    }
+
     async findAll(req: Request, res: Response): Promise<void> {
         const searchQuery = req.query.search as string;
         const emailQuery = req.query.email as string;

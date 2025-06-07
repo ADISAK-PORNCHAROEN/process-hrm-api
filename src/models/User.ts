@@ -22,3 +22,11 @@ export interface IUserLogin {
     email: string;
     password: string;
 }
+
+
+export interface IUserChangePassword {
+    id: number;
+    email: string;
+    password: string;
+    newPassword: string;
+}

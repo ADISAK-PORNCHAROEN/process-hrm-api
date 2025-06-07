@@ -1,5 +1,5 @@
 import prisma from "../config/prismaClient";
-import { IUser, IUserLogin, IUserSafe } from "../models/User";
+import { IUser, IUserChangePassword, IUserLogin, IUserSafe } from "../models/User";
 
 export class UserRepository {
     protected model = prisma.user;
@@ -33,7 +33,7 @@ export class UserRepository {
         return existingUser
     }
 
-    async findId(userId: number): Promise<IUserSafe | null> {
+    async findId(userId: number): Promise<IUser | null> {
         const existingId = await this.model.findFirst({
             where: {
                 id: userId
@@ -58,14 +58,13 @@ export class UserRepository {
         return editUser
     }
 
-    async updatePassword(user: IUser): Promise<IUser | null> {
+    async updatePassword(user: IUserChangePassword): Promise<IUser | null> {
         const editPassword = await this.model.update({
             where: {
-                email: user.email,
-                password: user.password
+                id: user.id
             },
             data: {
-                password: user.password
+                password: user.newPassword
             }
         })
         return editPassword
