@@ -86,6 +86,7 @@ export class UserService {
         }
     }
 
+    // new feature
     async changePassword(userId: number, user: IUserChangePassword): Promise<IUser | null> {
         try {
             const existingId = await this.userRepository.findId(userId)
