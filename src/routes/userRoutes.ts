@@ -10,6 +10,7 @@ router.post('/createUser', userController.createUser.bind(userController));
 router.post('/login', userController.loginUser.bind(userController));
 router.patch('/changePassword/:id', authenticate, userController.changePassword.bind(userController));
 
+// user route
 router.get('/users', authenticate, authorize(["Admin"]), userController.getAllUser.bind(userController));
 router.get('/user/:id', authenticate, userController.getUserId.bind(userController));
 router.put('/user/:id', authenticate, userController.updateUser.bind(userController));
