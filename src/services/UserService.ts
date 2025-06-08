@@ -1,6 +1,8 @@
+import { error } from "console";
 import { IUser, IUserChangePassword, IUserLogin, IUserSafe } from "../models/User";
 import { UserRepository } from "../repositories/UserRepository";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export class UserService {
     protected userRepository: UserRepository
@@ -9,9 +11,14 @@ export class UserService {
         this.userRepository = new UserRepository
     }
 
-    async getAllUser(): Promise<IUser[]> {
-        const users = await this.userRepository.getAllUser();
-        return users
+    async getAllUser(): Promise<IUserSafe[]> {
+        try {
+            const users = await this.userRepository.getAllUser();
+
+            return users
+        } catch (error: unknown) {
+            throw error;
+        }
     }
 
     async getUserId(id: number): Promise<IUserSafe | null> {
@@ -19,7 +26,7 @@ export class UserService {
         return userId
     }
 
-    async createUser(user: IUser): Promise<IUser | null> {
+    async createUser(user: IUser): Promise<IUserSafe | null> {
         try {
             const existingEmail = await this.userRepository.findEmail(user)
 
@@ -37,10 +44,9 @@ export class UserService {
         }
     }
 
-    async updateUser(userId: number, user: IUser): Promise<IUser | null> {
+    async updateUser(userId: number, user: IUser): Promise<IUserSafe | null> {
         try {
             const existingId = await this.userRepository.findId(userId)
-            console.log(existingId)
 
             if (!existingId) {
                 throw new Error("Not founded")
@@ -80,13 +86,17 @@ export class UserService {
                 throw new Error("Something is wrong email or password")
             }
 
-            return existingEmail
+            const { email } = user;
+
+            // ข้อมูล | key | การเข้าถึงข้อมูลและกำหนดระยะเวลาข้อมูลแล้วเราก็จะได้ token ออกมา
+            const token: any = jwt.sign({ email }, process.env.SECRET_KEY!, { expiresIn: "1h" })
+
+            return token
         } catch (error: unknown) {
             throw error
         }
     }
 
-    // new feature
     async changePassword(userId: number, user: IUserChangePassword): Promise<IUser | null> {
         try {
             const existingId = await this.userRepository.findId(userId)
@@ -108,8 +118,12 @@ export class UserService {
         }
     }
 
-    async findAll(searchQuery: string, emailQuery: string, sort: string): Promise<IUser[]> {
-        const search = await this.userRepository.findAll(searchQuery, emailQuery, sort)
-        return search
+    async findAll(searchQuery: string, typeQuery: string, sort: string): Promise<IUserSafe[]> {
+        try {
+            const search = await this.userRepository.findAll(searchQuery, typeQuery, sort)
+            return search
+        } catch (error: unknown) {
+            throw error
+        }
     }
 }

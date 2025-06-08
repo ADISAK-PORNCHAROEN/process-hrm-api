@@ -4,24 +4,56 @@ import { IUser, IUserChangePassword, IUserLogin, IUserSafe } from "../models/Use
 export class UserRepository {
     protected model = prisma.user;
 
-    async getAllUser(): Promise<IUser[]> {
+    async getAllUser(): Promise<IUserSafe[]> {
         return await this.model.findMany({
             orderBy: {
                 id: 'asc'
+            },
+            select: {
+                id: true,
+                email: true,
+                password: false,
+                fname: true,
+                lname: true,
+                role: true
             }
         });
     }
 
-    async getUserId(id: number): Promise<IUser | null> {
+    async getUserId(id: number): Promise<IUserSafe | null> {
         return await this.model.findUnique({
             where: {
                 id: id
+            },
+            select: {
+                id: true,
+                email: true,
+                password: false,
+                fname: true,
+                lname: true,
+                role: true
             }
         });
     }
 
-    async createUser(user: IUser): Promise<IUser> {
-        return await this.model.create({ data: user });
+    async createUser(user: IUser): Promise<IUserSafe> {
+        return await this.model.create({
+            data: {
+                email: user.email,
+                password: user.password,
+                fname: user.fname,
+                lname: user.lname,
+                role: user.role
+            },
+            select: {
+                id: true,
+                email: true,
+                password: false,
+                fname: true,
+                lname: true,
+                role: true
+            }
+        });
     }
 
     async findEmail(user: IUser): Promise<IUser | null> {
@@ -42,7 +74,7 @@ export class UserRepository {
         return existingId
     }
 
-    async updateUser(userId: number, user: IUser): Promise<IUser | null> {
+    async updateUser(userId: number, user: IUser): Promise<IUserSafe | null> {
         const editUser = await this.model.update({
             where: {
                 id: userId
@@ -53,6 +85,14 @@ export class UserRepository {
                 lname: user.lname,
                 role: user.role,
                 updatedAt: user.updatedAt
+            },
+            select: {
+                id: true,
+                email: true,
+                password: false,
+                fname: true,
+                lname: true,
+                role: true
             }
         })
         return editUser
@@ -80,7 +120,7 @@ export class UserRepository {
         return deleteUser
     }
 
-    async findAll(searchQuery: string, emailQuery: string, sortQuery: string): Promise<IUser[]> {
+    async findAll(searchQuery: string, typeQuery: string, sortQuery: string): Promise<IUserSafe[]> {
         // ถ้ามี emailQuery ให้ทำการ search name หรือ ถ้าไม่มี emailQuery ให้ทำการ search email และ name
         /* let whereCondition: Object = emailQuery ? {
             email: { contains: emailQuery, mode: "insensitive" },
@@ -103,42 +143,32 @@ export class UserRepository {
             }]
         } */
 
-        // let whereCondition: object = {};
+       // searchtype ถ้าเราส่ง type มาแบบนี้ให้ทำการ search แต่ละ type ที่ส่งผ่าน typeQuery
+        const dataType = ["email", "fname", "lname", "role"];
 
-        // if (emailQuery === "email") {
-        //     whereCondition = {
-        //         email: {
-        //             contains: searchQuery,
-        //             mode: "insensitive"
-        //         }
-        //     };
-        // } else if (emailQuery === "name") {
-        //     whereCondition = {
-        //         name: {
-        //             contains: searchQuery,
-        //             mode: "insensitive"
-        //         }
-        //     };
-        // }
+        let whereCondition: object = {};
 
-        // ถ้ามี emailQuery ให้ทำการ search name หรือ ถ้าไม่มี emailQuery ให้ทำการ search name
-        let whereCondition: Object = emailQuery ? {
-            email: { contains: emailQuery, mode: "insensitive" },
-            name: {
-                contains: searchQuery,
-                mode: "insensitive"
-            }
-        } : {
-            name: {
-                contains: searchQuery,
-                mode: "insensitive"
-            }
+        if (typeQuery && dataType.includes(typeQuery)) {
+            whereCondition = {
+                [typeQuery]: {
+                    contains: searchQuery,
+                    mode: "insensitive"
+                }
+            };
         }
 
         return await this.model.findMany({
             where: whereCondition,
             orderBy: {
                 createdAt: sortQuery as 'asc' | 'desc'
+            },
+            select: {
+                id: true,
+                email: true,
+                password: false,
+                fname: true,
+                lname: true,
+                role: true
             }
         })
     }
