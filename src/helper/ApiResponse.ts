@@ -2,12 +2,16 @@ export default class APIResponse {
     public success: boolean;
     public message: string;
     public data?: any;
+    public error?: any;
 
-    constructor(success: boolean, message: string, data?: any) {
+    constructor(success: boolean, message: string, data?: any, error?: any) {   
         this.success = success;
         this.message = message;
         if (data !== undefined) {
             this.data = data
+        }
+        if (error !== undefined) {
+            this.error = error
         }
     }
 
@@ -15,7 +19,7 @@ export default class APIResponse {
         return new APIResponse(true, message, data);
     }
 
-    static error(message: string): APIResponse {
-        return new APIResponse(false, message);
+    static error(message: string, error?: any): APIResponse {
+        return new APIResponse(false, message, undefined, error);
     }
 }
