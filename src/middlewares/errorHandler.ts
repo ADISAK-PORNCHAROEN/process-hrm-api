@@ -23,4 +23,5 @@ export const errorHandler = (
             method: req.method
         })
     });
+    next();
 };

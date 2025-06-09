@@ -6,18 +6,23 @@ import jwt from "jsonwebtoken";
 const userRepository = new UserRepository;
 
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
-    // เอาข้อมูลของ token ที่จำเป็นมาใช้งาน
-    let token = req.headers.authorization?.split(" ")[1]
 
-    // เช็คว่า token นี้ไม่ได้มาจากระบบเราจริงๆให้ message ออกไป
-    if (!token) {
+    // เป็นวิธีการใช้แบบ cookie
+    const authHeader = req.cookies.token;
+
+    // เป็นวิธี login ด้วยการใช้ bearer token
+    // // เอาข้อมูลของ token ที่จำเป็นมาใช้งาน
+    // let token = req.headers.authorization?.split(" ")[1]
+
+    // // เช็คว่า token นี้ไม่ได้มาจากระบบเราจริงๆให้ message ออกไป
+    if (!authHeader) {
         res.status(401).json({ message: 'Token required' });
         return;
     }
 
     try {
         // ทำการเช็คว่า token ที่ใส่เข้ามาเนี่ยเป็น authToken จากระบบของเราด้วยการ verify
-        const decoded = jwt.verify(token, process.env.SECRET_KEY!);
+        const decoded = jwt.verify(authHeader, process.env.SECRET_KEY!);
 
         // เช็คว่า token ที่ใส่เข้ามาถูกต้องหรือไม่
         const findingEmail = userRepository.findEmail(decoded as IUser);

@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import routes from './routes';
+import cookieParser from "cookie-parser";
 import { errorHandler } from './middlewares/errorHandler';
 
 dotenv.config();
@@ -16,6 +17,7 @@ app.use(cors({
     credentials: true,
     origin: process.env.ORIGIN
 }));
+app.use(cookieParser());
 
 // Logging middleware (เพิ่มเพื่อ debug)
 // app.use((req, res, next) => {

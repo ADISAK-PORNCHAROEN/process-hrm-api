@@ -98,11 +98,21 @@ export class UserController {
             const body = req.body;
             const token = await this.userService.loginUser(body);
             const response = APIResponse.success("Login success")
-            res.status(200).json({
-                ...response,
-                token: token,
-                tokenType: "Bearer"
+            // เป็นวิธีส่ง token แบบ Bearer
+            // res.status(200).json({
+            //     ...response,
+            //     token: token,
+            //     tokenType: "Bearer"
+            // });
+
+            // เป็นวิธีการส่งแบบ cookie
+            res.cookie('token', token, {
+                maxAge: 300000, //5 วินาที
+                secure: true,
+                httpOnly: true,
+                sameSite: 'none'
             });
+            res.status(200).json(response)
         } catch (error: unknown) {
             const message = (error instanceof Error && error.message === "Something is wrong email or password")
                 ? "Something is wrong email or password"
